@@ -1,8 +1,4 @@
 ---
-- name: Update apt cache.
-  ansible.builtin.apt:
-    update_cache: true
-
 - name: Install required packages.
   ansible.builtin.apt:
     name:
@@ -16,9 +12,17 @@
     dest: /etc/apt/sources.list.d/log2ram.list
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
+
+- name: Download log2ram repository GPG key
+  when: not log2ram_has_apt_key
+  ansible.builtin.get_url:
+    url: https://azlux.fr/repo.gpg.key
+    dest: /usr/share/keyrings/azlux-archive-keyring.gpg
+    mode: '0644'
 
 - name: Retrieve log2ram repository key.
+  when: log2ram_has_apt_key
   ansible.builtin.apt_key:
     url: https://azlux.fr/repo.gpg.key
     state: present
